@@ -13,16 +13,17 @@ mongoose.connect("mongodb+srv://admin:admin@cluster0.lptfhbe.mongodb.net/User")
 
 //Routes
 
-app.post("/signup", (req, res) => {
+//post data to database
+app.post("/signup",(req, res) => {
     const { username, email, password } = req.body
-    userModel.findOne({ username: username }, (err, user) => {
+    userModel.findOne({ email: email }, (err, user) => {
         if (user) {
             res.send({ message: "User already registered" });
         } else {
             const userm = new userModel({
-                username,
-                email,
-                password
+                username:username,
+                email:email,
+                password:password
             })
             userm.save((err) => {
                 if (err) {
@@ -34,6 +35,23 @@ app.post("/signup", (req, res) => {
         }
     })
 })
+
+//get data from database
+app.post("/login", async (req,res)=>{
+    const { username, password } = req.body
+    userModel.findOne({username:username},(err,user)=>{
+        if(user){
+            if(password === user.password){
+                res.send({message:"Login Successfull",user:user})
+            }else{
+                res.send({message:"Incorrect password"})
+            }
+        }
+        else{
+            res.send({message:"User Not Found !!"});
+        }
+    })
+});
 
 app.listen(process.env.PORT || 3002, () => {
     console.log(`You are connected to port ${port}`)
